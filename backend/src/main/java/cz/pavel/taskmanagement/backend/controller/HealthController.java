@@ -13,10 +13,10 @@ import java.util.Map;
 public class HealthController {
 
     @GetMapping
-    public Map<String, Object> health() {
-        Map<String, Object> response = new HashMap<>();
+    public Map<String, String> health() {
+        Map<String, String> response = new HashMap<>();
         response.put("status", "UP");
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("message", "Tasker is running:");
         return response;
     }
