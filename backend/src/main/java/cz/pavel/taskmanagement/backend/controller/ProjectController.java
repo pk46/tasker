@@ -4,6 +4,8 @@ import cz.pavel.taskmanagement.backend.dto.project.ProjectCreateDTO;
 import cz.pavel.taskmanagement.backend.dto.project.ProjectResponseDTO;
 import cz.pavel.taskmanagement.backend.dto.project.ProjectUpdateDTO;
 import cz.pavel.taskmanagement.backend.service.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +19,13 @@ import java.util.List;
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Project controller", description = "Project management endpoints")
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @GetMapping
+    @Operation(summary = "Get all projects", description = "Retrieve a list of all projects in the system")
     public ResponseEntity<List<ProjectResponseDTO>> gettAllProject() {
         log.info("GET /api/projects - Fetching all projects");
         List<ProjectResponseDTO> projects = projectService.getAllProjects();
@@ -29,6 +33,7 @@ public class ProjectController {
     }
 
     @GetMapping("{id}")
+    @Operation(summary = "Get project by ID", description = "Retrieve a specific project by its ID")
     public ResponseEntity<ProjectResponseDTO> getProjectById(@PathVariable Long id) {
         log.info("GET /api/projects/{} - Fetching project by id: ", id);
         ProjectResponseDTO project = projectService.getProjectById(id);
@@ -36,6 +41,7 @@ public class ProjectController {
     }
 
     @GetMapping("/owner/{ownerId}")
+    @Operation(summary = "Get project by owner ID", description = "Retrieve a specific project by its owner")
     public ResponseEntity<List<ProjectResponseDTO>> getProjectsByOwnerId(@PathVariable Long ownerId) {
         log.info("GET /api/project/owner/{} - Fetching project by ownerId: ", ownerId);
         List<ProjectResponseDTO> project = projectService.getProjectsByOwner(ownerId);
@@ -43,6 +49,7 @@ public class ProjectController {
     }
 
     @PostMapping
+    @Operation(summary = "Create new project", description = "Create a new project in the system")
     public ResponseEntity<ProjectResponseDTO> createProject(
             @Valid @RequestBody ProjectCreateDTO projectCreateDTO,
             @RequestParam Long ownerId) {
@@ -52,6 +59,7 @@ public class ProjectController {
     }
 
     @PutMapping("{id}")
+    @Operation(summary = "Update project", description = "Update an existing project's information")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
             @Valid @RequestBody ProjectUpdateDTO projectUpdateDTO) {
@@ -61,6 +69,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("{id}")
+    @Operation(summary = "Delete user", description = "Remove user from the system")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.info("DELETE /api/project - Deleting project id {}", id);
         projectService.deleteProject(id);
