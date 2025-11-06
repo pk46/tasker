@@ -1,0 +1,27 @@
+### Get all projects
+GET http://localhost:8080/api/projects
+Accept:  application/json
+
+### Get project
+GET http://localhost:8080/api/projects/1
+Accept:  application/json
+
+### Create project
+POST http://localhost:8080/api/projects?ownerId=1
+Content-Type: application/json
+
+{
+  "name": "Pavel's project",
+  "description": "Project for demo purposes"
+}
+
+### Update project
+PUT http://localhost:8080/api/projects/33
+Content-Type:  application/json
+
+{
+  "name": "John Does's project"
+}
+
+### Delete project
+DELETE http://localhost:8080/api/projects/33

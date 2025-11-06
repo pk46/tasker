@@ -76,7 +76,7 @@ public class UserService {
                             throw new DuplicateResourceException("Email already exists: " + updateDTO.getEmail());
                         }
                     });
-            user.setEmail(user.getEmail());
+            user.setEmail(updateDTO.getEmail());
         }
 
         if (updateDTO.getPassword() != null) {

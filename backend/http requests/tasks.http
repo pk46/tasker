@@ -1,0 +1,29 @@
+### Get all tasks
+GET http://localhost:8080/api/tasks
+Accept:  application/json
+
+### Get task
+GET http://localhost:8080/api/tasks/1
+Accept:  application/json
+
+### Create task
+POST http://localhost:8080/api/tasks?ownerId=1
+Content-Type: application/json
+
+{
+  "title": "Implement login feature",
+  "description": "Create JWT authentication",
+  "projectId": 1
+}
+
+### Update task
+PUT http://localhost:8080/api/tasks/33
+Content-Type:  application/json
+
+{
+  "title": "Testing task",
+  "description": "Testing update task entity"
+}
+
+### Delete task
+DELETE http://localhost:8080/api/tasks/33
