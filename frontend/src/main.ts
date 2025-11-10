@@ -1,6 +1,9 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import { mount } from 'svelte'
+import './app.css'
+import App from './App.svelte'
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+const app = mount(App, {
+  target: document.getElementById('app')!,
+})
+
+export default app
