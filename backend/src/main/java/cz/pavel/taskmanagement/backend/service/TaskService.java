@@ -126,6 +126,8 @@ public class TaskService {
             User assignee = userRepository.findById(updateDTO.getAssigneeId())
                     .orElseThrow(() -> new ResourceNotFoundException("User", updateDTO.getAssigneeId()));
             task.setAssignee(assignee);
+        } else {
+            task.setAssignee(null);
         }
 
         Task updatedTask = taskRepository.save(task);
