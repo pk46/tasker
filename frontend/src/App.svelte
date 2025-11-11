@@ -1,34 +1,34 @@
 <script lang="ts">
-  let count = 0;
+  import Router from 'svelte-spa-router';
+  import Dashboard from './pages/Dashboard.svelte';
+  import UserList from './pages/UserList.svelte';
 
-  function increment() {
-    count += 1;
-  }
+  const routes = {
+    '/': Dashboard,
+    '/users': UserList,
+  };
 </script>
 
-<main class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">
-      Svelte + Tailwind Test
-    </h1>
-    
-    <p class="text-gray-600 mb-6">
-      Pokud vidíš styly, Tailwind funguje!
-    </p>
-    
-    <div class="bg-blue-100 border-2 border-blue-300 rounded-lg p-4 mb-4">
-      <p class="text-xl font-semibold mb-2">Count: {count}</p>
-      <button 
-        on:click={increment}
-        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-        Click me
-      </button>
+<div class="min-h-screen bg-gray-100">
+  <nav class="bg-white shadow">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-gray-800">Task Management</h1>
+        </div>
+        <div class="flex space-x-4">
+          <a href="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded">
+            Dashboard
+          </a>
+          <a href="/users" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded">
+            Users
+          </a>
+        </div>
+      </div>
     </div>
+  </nav>
 
-    <div class="text-sm text-gray-500">
-      <p>✅ Svelte running</p>
-      <p>✅ TypeScript enabled</p>
-      <p>✅ Tailwind CSS active</p>
-    </div>
-  </div>
-</main>
+  <main>
+    <Router {routes} />
+  </main>
+</div>
