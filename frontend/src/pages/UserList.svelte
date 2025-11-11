@@ -1,29 +1,37 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { User, UserCreate } from '../models/user';
-  import { getAllUsers, createUser, deleteUser } from '../services/userService';
+  import type { User, UserCreate, UserUpdate } from '../models/user';
+  import { getAllUsers, createUser, updateUser, deleteUser } from '../services/userService';
   import Modal from '../components/Modal.svelte';
 
   let users: User[] = [];
   let loading = true;
   let error: string | null = null;
+  let currentUser: User | null = null;
 
-  // Modal state
+  // Create modal
   let isCreateModalOpen = false;
   let isCreating = false;
   let createError: string | null = null;
-
-  // Form data
   let newUser: UserCreate = {
     username: '',
     email: '',
     password: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
   };
+
+  // Edit modal
+  let isEditModalOpen = false;
+  let isEditing = false;
+  let editError: string | null = null;
+  let editingUser: User | null = null;
+  let editData: UserUpdate = {};
 
   onMount(async () => {
     await loadUsers();
+    // Simulace aktuálního přihlášeného uživatele (později JWT)
+    currentUser = users.find(u => u.role === 'ADMIN') || users[0] || null;
   });
 
   async function loadUsers() {
@@ -41,13 +49,12 @@
   function openCreateModal() {
     isCreateModalOpen = true;
     createError = null;
-    // Reset form
     newUser = {
       username: '',
       email: '',
       password: '',
       firstName: '',
-      lastName: ''
+      lastName: '',
     };
   }
 
@@ -59,18 +66,52 @@
     try {
       isCreating = true;
       createError = null;
-      
       await createUser(newUser);
-      
-      // Reload users
       await loadUsers();
-      
-      // Close modal
       closeCreateModal();
     } catch (err) {
       createError = err instanceof Error ? err.message : 'Failed to create user';
     } finally {
       isCreating = false;
+    }
+  }
+
+  function openEditModal(user: User) {
+    editingUser = user;
+    editData = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      password: ''
+    };
+    isEditModalOpen = true;
+    editError = null;
+  }
+
+  function closeEditModal() {
+    isEditModalOpen = false;
+    editingUser = null;
+  }
+
+  async function handleUpdateUser() {
+    if (!editingUser) return;
+
+    try {
+      isEditing = true;
+      editError = null;
+      
+      const updatePayload = { ...editData };
+      if (!updatePayload.password || updatePayload.password.trim() === '') {
+        delete updatePayload.password;
+      }
+      
+      await updateUser(editingUser.id, updatePayload);
+      await loadUsers();
+      closeEditModal();
+    } catch (err) {
+      editError = err instanceof Error ? err.message : 'Failed to update user';
+    } finally {
+      isEditing = false;
     }
   }
 
@@ -89,17 +130,16 @@
 </script>
 
 <div class="container mx-auto px-4 py-8">
-  <!-- Header with Create button -->
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-bold text-gray-800">Users</h1>
-    <button 
-      on:click={openCreateModal}
-      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Create User
-    </button>
+      <button 
+        on:click={openCreateModal}
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create User
+      </button>
   </div>
 
   {#if loading}
@@ -142,7 +182,12 @@
                   {user.role}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <button 
+                  on:click={() => openEditModal(user)}
+                  class="text-blue-600 hover:text-blue-900 transition">
+                  Edit
+                </button>
                 <button 
                   on:click={() => handleDeleteUser(user.id, user.username)}
                   class="text-red-600 hover:text-red-900 transition">
@@ -171,7 +216,6 @@
     {/if}
 
     <div class="space-y-4">
-      <!-- Username -->
       <div>
         <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
           Username *
@@ -185,7 +229,6 @@
           placeholder="john_doe" />
       </div>
 
-      <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
           Email *
@@ -199,7 +242,6 @@
           placeholder="john@example.com" />
       </div>
 
-      <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
           Password *
@@ -214,34 +256,33 @@
           placeholder="Min. 6 characters" />
       </div>
 
-      <!-- First Name -->
-      <div>
-        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
-          First Name
-        </label>
-        <input 
-          type="text" 
-          id="firstName"
-          bind:value={newUser.firstName}
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="John" />
-      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
+            First Name
+          </label>
+          <input 
+            type="text" 
+            id="firstName"
+            bind:value={newUser.firstName}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="John" />
+        </div>
 
-      <!-- Last Name -->
-      <div>
-        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
-          Last Name
-        </label>
-        <input 
-          type="text" 
-          id="lastName"
-          bind:value={newUser.lastName}
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Doe" />
+        <div>
+          <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
+            Last Name
+          </label>
+          <input 
+            type="text" 
+            id="lastName"
+            bind:value={newUser.lastName}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Doe" />
+        </div>
       </div>
     </div>
 
-    <!-- Modal Actions -->
     <div class="mt-6 flex justify-end gap-3">
       <button 
         type="button"
@@ -255,6 +296,87 @@
         disabled={isCreating}
         class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition disabled:opacity-50">
         {isCreating ? 'Creating...' : 'Create User'}
+      </button>
+    </div>
+  </form>
+</Modal>
+
+<!-- Edit User Modal -->
+<Modal 
+  isOpen={isEditModalOpen} 
+  title="Edit User" 
+  onClose={closeEditModal}>
+  
+  <form on:submit|preventDefault={handleUpdateUser}>
+    {#if editError}
+      <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {editError}
+      </div>
+    {/if}
+
+    <div class="space-y-4">
+      <div>
+        <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input 
+          type="email" 
+          id="edit-email"
+          bind:value={editData.email}
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+      </div>
+
+      <div>
+        <label for="edit-password" class="block text-sm font-medium text-gray-700 mb-1">
+          New Password (leave empty to keep current)
+        </label>
+        <input 
+          type="password" 
+          id="edit-password"
+          bind:value={editData.password}
+          minlength="6"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Min. 6 characters if changing" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="edit-firstName" class="block text-sm font-medium text-gray-700 mb-1">
+            First Name
+          </label>
+          <input 
+            type="text" 
+            id="edit-firstName"
+            bind:value={editData.firstName}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+
+        <div>
+          <label for="edit-lastName" class="block text-sm font-medium text-gray-700 mb-1">
+            Last Name
+          </label>
+          <input 
+            type="text" 
+            id="edit-lastName"
+            bind:value={editData.lastName}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button 
+        type="button"
+        on:click={closeEditModal}
+        disabled={isEditing}
+        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+        Cancel
+      </button>
+      <button 
+        type="submit"
+        disabled={isEditing}
+        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition disabled:opacity-50">
+        {isEditing ? 'Saving...' : 'Save Changes'}
       </button>
     </div>
   </form>

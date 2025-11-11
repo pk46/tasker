@@ -2,10 +2,14 @@
   import Router from 'svelte-spa-router';
   import Dashboard from './pages/Dashboard.svelte';
   import UserList from './pages/UserList.svelte';
+  import ProjectList from './pages/ProjectList.svelte';
+  import TaskList from './pages/TaskList.svelte';
 
   const routes = {
     '/': Dashboard,
     '/users': UserList,
+    '/projects': ProjectList,
+    '/tasks': TaskList,
   };
 </script>
 
@@ -17,11 +21,17 @@
           <h1 class="text-xl font-bold text-gray-800">Task Management</h1>
         </div>
         <div class="flex space-x-4">
-          <a href="#/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded">
+          <a href="#/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
             Dashboard
           </a>
-          <a href="#/users" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded">
+          <a href="#/users" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
             Users
+          </a>
+          <a href="#/projects" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
+            Projects
+          </a>
+          <a href="#/tasks" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
+            Tasks
           </a>
         </div>
       </div>
