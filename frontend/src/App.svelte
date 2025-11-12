@@ -4,12 +4,14 @@
   import UserList from './pages/UserList.svelte';
   import ProjectList from './pages/ProjectList.svelte';
   import TaskList from './pages/TaskList.svelte';
+  import Taskboard from './pages/Taskboard.svelte';
 
   const routes = {
     '/': Dashboard,
     '/users': UserList,
     '/projects': ProjectList,
     '/tasks': TaskList,
+    '/tasks/board': Taskboard,
   };
 </script>
 
@@ -24,14 +26,17 @@
           <a href="#/" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
             Dashboard
           </a>
-          <a href="#/users" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
-            Users
+           <a href="#/tasks/board" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
+            Kanban
           </a>
           <a href="#/projects" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
             Projects
           </a>
           <a href="#/tasks" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
             Tasks
+          </a>
+          <a href="#/users" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded transition">
+            Users
           </a>
         </div>
       </div>
