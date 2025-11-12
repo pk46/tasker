@@ -19,6 +19,7 @@ public class ProjectResponseDTO {
     private UserResponseDTO owner;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private int taskCount;
 
     public ProjectResponseDTO(Project project) {
         this.id = project.getId();

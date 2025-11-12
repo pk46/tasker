@@ -26,7 +26,7 @@ public class ProjectController {
 
     @GetMapping
     @Operation(summary = "Get all projects", description = "Retrieve a list of all projects in the system")
-    public ResponseEntity<List<ProjectResponseDTO>> gettAllProject() {
+    public ResponseEntity<List<ProjectResponseDTO>> getAllProject() {
         log.info("GET /api/projects - Fetching all projects");
         List<ProjectResponseDTO> projects = projectService.getAllProjects();
         return ResponseEntity.ok(projects);

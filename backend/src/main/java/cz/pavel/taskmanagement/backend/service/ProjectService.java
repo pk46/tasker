@@ -7,6 +7,7 @@ import cz.pavel.taskmanagement.backend.entity.Project;
 import cz.pavel.taskmanagement.backend.entity.User;
 import cz.pavel.taskmanagement.backend.exception.ResourceNotFoundException;
 import cz.pavel.taskmanagement.backend.repository.ProjectRepository;
+import cz.pavel.taskmanagement.backend.repository.TaskRepository;
 import cz.pavel.taskmanagement.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,12 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
     public List<ProjectResponseDTO> getAllProjects() {
         log.info("Fetching all projects");
         return projectRepository.findAll().stream()
-                .map(ProjectResponseDTO::new)
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -36,7 +38,7 @@ public class ProjectService {
         log.info("Fetching project with id: {}", id);
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", id));
-        return new ProjectResponseDTO(project);
+        return toResponseDTO(project);
     }
 
     public List<ProjectResponseDTO> getProjectsByOwner(Long ownerId) {
@@ -45,7 +47,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", ownerId));
 
         return projectRepository.findByOwner(owner).stream()
-                .map(ProjectResponseDTO::new)
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -63,7 +65,7 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
         log.info("Project created successfully with id: {}", savedProject.getId());
 
-        return new ProjectResponseDTO(savedProject);
+        return toResponseDTO(savedProject);
     }
 
     public ProjectResponseDTO updateProject(Long id, ProjectUpdateDTO updateDTO) {
@@ -83,7 +85,7 @@ public class ProjectService {
         Project updatedProject = projectRepository.save(project);
         log.info("Project updated successfully with id: {}", updatedProject.getId());
 
-        return new ProjectResponseDTO(updatedProject);
+        return toResponseDTO(updatedProject);
     }
 
     public void deleteProject(Long id) {
@@ -95,5 +97,12 @@ public class ProjectService {
 
         projectRepository.deleteById(id);
         log.info("Project deleted successfully with id: {}", id);
+    }
+
+    private ProjectResponseDTO toResponseDTO(Project project) {
+        ProjectResponseDTO dto = new ProjectResponseDTO(project);
+        long count = taskRepository.countByProject(project);
+        dto.setTaskCount((int) count);
+        return dto;
     }
 }

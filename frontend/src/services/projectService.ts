@@ -1,4 +1,5 @@
 import type { Project, ProjectCreate, ProjectUpdate } from '../models/project';
+import { getTasksByProject } from './taskService';
 import { config } from '../lib/config';
 
 const API_URL = `${config.apiUrl}/projects`;
@@ -62,4 +63,9 @@ export async function deleteProject(id: number): Promise<void> {
   if (!response.ok) {
     throw new Error(`Failed to delete project ${id}`);
   }
+}
+
+export async function getTaskCount(id: number): Promise<number> {
+  const response = await getTasksByProject(id);
+  return response.length;
 }

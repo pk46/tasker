@@ -7,6 +7,7 @@ export interface Project {
   owner: User;
   createdAt: string;
   updatedAt: string;
+  taskCount: number;
 }
 
 export interface ProjectCreate {

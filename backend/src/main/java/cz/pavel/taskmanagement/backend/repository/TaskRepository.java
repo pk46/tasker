@@ -18,6 +18,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByProjectAndStatus(Project project, TaskStatus status);
     List<Task> findByAssigneeAndStatus(User assignee, TaskStatus status);
     List<Task> findByDueDateBefore(LocalDate date);
+    long countByProject(Project project);
 
     @Query("SELECT t FROM Task t WHERE t.project.owner = :owner")
     List<Task> findAllTasksByProjectOwner(User owner);
