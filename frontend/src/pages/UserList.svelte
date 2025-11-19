@@ -3,6 +3,7 @@
   import type { User, UserCreate, UserUpdate } from '../models/user';
   import { getAllUsers, createUser, updateUser, deleteUser } from '../services/userService';
   import Modal from '../components/Modal.svelte';
+  import { authStore } from '../stores/authStore';
 
   let users: User[] = [];
   let loading = true;
@@ -28,10 +29,14 @@
   let editingUser: User | null = null;
   let editData: UserUpdate = {};
 
+  authStore.subscribe(state => {
+    currentUser = state.user;
+  });
+
+  
   onMount(async () => {
     await loadUsers();
-    // Simulace aktuálního přihlášeného uživatele (později JWT)
-    currentUser = users.find(u => u.role === 'ADMIN') || users[0] || null;
+    
   });
 
   async function loadUsers() {

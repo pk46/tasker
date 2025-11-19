@@ -1,6 +1,7 @@
 ### Get all tasks
 GET http://localhost:8080/api/tasks
 Accept:  application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6Mjg5LCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjM1Nzc3NzgsImV4cCI6MTc2MzY2NDE3OH0.513Juu4D3VYn0DY2LB1WQ3jtQA63-I5N6AnX_ULog_0
 
 ### Get task
 GET http://localhost:8080/api/tasks/1
