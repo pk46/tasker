@@ -6,11 +6,12 @@
   import { authStore } from '../stores/authStore';
 
   let users: User[] = [];
+  let adminCount: number = 0;
   let loading = true;
   let error: string | null = null;
   let currentUser: User | null = null;
 
-  // Create modal
+  // Create modal 
   let isCreateModalOpen = false;
   let isCreating = false;
   let createError: string | null = null;
@@ -20,6 +21,7 @@
     password: '',
     firstName: '',
     lastName: '',
+    role: '',
   };
 
   // Edit modal
@@ -36,19 +38,25 @@
   
   onMount(async () => {
     await loadUsers();
-    
   });
 
   async function loadUsers() {
     try {
       loading = true;
       users = await getAllUsers();
+      await getAdminCounts();
       error = null;
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load users';
     } finally {
       loading = false;
     }
+  }
+
+  async function getAdminCounts() {
+    const admins = users.filter((user) => user.role === "ADMIN")
+    adminCount = admins.length;
+    return adminCount;
   }
 
   function openCreateModal() {
@@ -60,6 +68,7 @@
       password: '',
       firstName: '',
       lastName: '',
+      role: '',
     };
   }
 
@@ -87,7 +96,8 @@
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      password: ''
+      password: '',
+      role: user.role
     };
     isEditModalOpen = true;
     editError = null;
@@ -193,11 +203,13 @@
                   class="text-blue-600 hover:text-blue-900 transition">
                   Edit
                 </button>
-                <button 
+                {#if !(adminCount === 1 && user.role === "ADMIN")}
+                <button
                   on:click={() => handleDeleteUser(user.id, user.username)}
                   class="text-red-600 hover:text-red-900 transition">
                   Delete
                 </button>
+                {/if}
               </td>
             </tr>
           {/each}
@@ -285,6 +297,21 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Doe" />
         </div>
+
+        <div>
+          <label for="role" class="block text-sm font-medium text-gray-700 mb-1">
+            Role
+          </label>
+          <select
+            id="role"
+            bind:value={newUser.role}
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Select role</option>
+            <option value="USER">USER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -365,6 +392,18 @@
             id="edit-lastName"
             bind:value={editData.lastName}
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div>
+        <label for="edit-role" class="block text-sm font-medium text-gray-700 mb-1">
+            Role
+          </label>
+          <select
+            id="edit-role"
+            bind:value={editData.role}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="USER">USER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
         </div>
       </div>
     </div>

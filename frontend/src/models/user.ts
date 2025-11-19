@@ -13,6 +13,7 @@ export interface UserCreate {
   password: string;
   firstName?: string;
   lastName?: string;
+  role: string; 
 }
 
 export interface UserUpdate {
@@ -20,4 +21,5 @@ export interface UserUpdate {
   password?: string;
   firstName?: string;
   lastName?: string;
+  role?: string;
 }

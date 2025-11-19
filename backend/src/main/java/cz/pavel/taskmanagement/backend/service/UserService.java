@@ -56,7 +56,7 @@ public class UserService {
         user.setPassword(createDTO.getPassword());
         user.setFirstName(createDTO.getFirstName());
         user.setLastName(createDTO.getLastName());
-        user.setRole(Role.USER);
+        user.setRole(createDTO.getRole());
 
         User savedUser = userRepository.save(user);
         log.info("User created successfully with id: {}", savedUser.getId());
@@ -89,6 +89,10 @@ public class UserService {
 
         if (updateDTO.getLastName() != null) {
             user.setLastName(updateDTO.getLastName());
+        }
+
+        if (updateDTO.getRole() != null) {
+            user.setRole(updateDTO.getRole());
         }
 
         User updatedUser = userRepository.save(user);

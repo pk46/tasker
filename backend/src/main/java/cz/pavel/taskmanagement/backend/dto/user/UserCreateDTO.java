@@ -1,7 +1,11 @@
 package cz.pavel.taskmanagement.backend.dto.user;
 
+import cz.pavel.taskmanagement.backend.entity.Role;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +27,10 @@ public class UserCreateDTO {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
+    @NotNull(message = "User role is required")
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private String firstName;
     private String lastName;

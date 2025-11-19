@@ -1,5 +1,8 @@
 package cz.pavel.taskmanagement.backend.dto.user;
 
+import cz.pavel.taskmanagement.backend.entity.Role;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -19,4 +22,7 @@ public class UserUpdateDTO {
 
     private String firstName;
     private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
