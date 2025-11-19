@@ -1,35 +1,36 @@
 import type { Project, ProjectCreate, ProjectUpdate } from '../models/project';
 import { getTasksByProject } from './taskService';
 import { config } from '../lib/config';
+import { apiRequest } from './apiClient'; 
 
 const API_URL = `${config.apiUrl}/projects`;
 
 export async function getAllProjects(): Promise<Project[]> {
-  const response = await fetch(API_URL);
+  const response = await apiRequest(API_URL);
   if (!response.ok) {
-    throw new Error('Failed to fetch projects');
+    throw new Error('Failed to apiRequest projects');
   }
   return await response.json();
 }
 
 export async function getProjectById(id: number): Promise<Project> {
-  const response = await fetch(`${API_URL}/${id}`);
+  const response = await apiRequest(`${API_URL}/${id}`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch project ${id}`);
+    throw new Error(`Failed to apiRequest project ${id}`);
   }
   return await response.json();
 }
 
 export async function getProjectsByOwner(ownerId: number): Promise<Project[]> {
-  const response = await fetch(`${API_URL}/owner/${ownerId}`);
+  const response = await apiRequest(`${API_URL}/owner/${ownerId}`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch projects for owner ${ownerId}`);
+    throw new Error(`Failed to apiRequest projects for owner ${ownerId}`);
   }
   return await response.json();
 }
 
 export async function createProject(project: ProjectCreate, ownerId: number): Promise<Project> {
-  const response = await fetch(`${API_URL}?ownerId=${ownerId}`, {
+  const response = await apiRequest(`${API_URL}?ownerId=${ownerId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,7 +44,7 @@ export async function createProject(project: ProjectCreate, ownerId: number): Pr
 }
 
 export async function updateProject(id: number, project: ProjectUpdate): Promise<Project> {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await apiRequest(`${API_URL}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export async function updateProject(id: number, project: ProjectUpdate): Promise
 }
 
 export async function deleteProject(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await apiRequest(`${API_URL}/${id}`, {
     method: 'DELETE',
   });
   if (!response.ok) {

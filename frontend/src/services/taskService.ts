@@ -1,10 +1,11 @@
 import type { Task, TaskCreate, TaskUpdate, TaskStatus } from '../models/task';
 import { config } from '../lib/config';
+import { apiRequest } from './apiClient'; 
 
 const API_URL = `${config.apiUrl}/tasks`;
 
 export async function getAllTasks(): Promise<Task[]> {
-  const response = await fetch(API_URL);
+  const response = await apiRequest(API_URL);
   if (!response.ok) {
     throw new Error('Failed to fetch tasks');
   }
@@ -12,7 +13,7 @@ export async function getAllTasks(): Promise<Task[]> {
 }
 
 export async function getTaskById(id: number): Promise<Task> {
-  const response = await fetch(`${API_URL}/${id}`);
+  const response = await apiRequest(`${API_URL}/${id}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch task ${id}`);
   }
@@ -20,7 +21,7 @@ export async function getTaskById(id: number): Promise<Task> {
 }
 
 export async function getTasksByProject(projectId: number): Promise<Task[]> {
-  const response = await fetch(`${API_URL}/project/${projectId}`);
+  const response = await apiRequest(`${API_URL}/project/${projectId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch tasks for project ${projectId}`);
   }
@@ -28,7 +29,7 @@ export async function getTasksByProject(projectId: number): Promise<Task[]> {
 }
 
 export async function getTasksByAssignee(assigneeId: number): Promise<Task[]> {
-  const response = await fetch(`${API_URL}/assignee/${assigneeId}`);
+  const response = await apiRequest(`${API_URL}/assignee/${assigneeId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch tasks for assignee ${assigneeId}`);
   }
@@ -36,7 +37,7 @@ export async function getTasksByAssignee(assigneeId: number): Promise<Task[]> {
 }
 
 export async function getTasksByStatus(status: TaskStatus): Promise<Task[]> {
-  const response = await fetch(`${API_URL}/status/${status}`);
+  const response = await apiRequest(`${API_URL}/status/${status}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch tasks with status ${status}`);
   }
@@ -44,7 +45,7 @@ export async function getTasksByStatus(status: TaskStatus): Promise<Task[]> {
 }
 
 export async function createTask(task: TaskCreate): Promise<Task> {
-  const response = await fetch(API_URL, {
+  const response = await apiRequest(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +59,7 @@ export async function createTask(task: TaskCreate): Promise<Task> {
 }
 
 export async function updateTask(id: number, task: TaskUpdate): Promise<Task> {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await apiRequest(`${API_URL}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -72,7 +73,7 @@ export async function updateTask(id: number, task: TaskUpdate): Promise<Task> {
 }
 
 export async function deleteTask(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await apiRequest(`${API_URL}/${id}`, {
     method: 'DELETE',
   });
   if (!response.ok) {

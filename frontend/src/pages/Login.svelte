@@ -1,8 +1,6 @@
 <script lang="ts">
   import { push } from 'svelte-spa-router';
   import { authStore } from '../stores/authStore';
-  import { getAllUsers } from '../services/userService';
-
 
   let username = '';
   let password = '';
@@ -19,22 +17,30 @@
       loading = true;
       error = '';
 
-      const users = await getAllUsers();
-      const user = users.find(u => u.username === username);
+    const response = await fetch('http://localhost:8080/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+    });
 
-      if (!user) {
-        error = 'Invalid username or password';
-        return;
-      }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      error = errorData?.message || 'Invalid username or password';
+      return;
+    }
 
-      if (password.length < 3) {
-        error = 'Invalid username or password';
-        return;
-      }
+    const data = await response.json();
 
-      authStore.login(user);
+    localStorage.setItem('jwt_token', data.token);
 
-      push('/');
+    authStore.login(data.user);
+
+    push('/');
     } catch (err) {
       error = 'Login failed. Please try again.';
       console.error('Login error:', err);
@@ -102,9 +108,10 @@
       <div class="mt-6 text-center text-sm text-gray-600">
         <p class="mb-2">Demo account:</p>
         <p class="text-xs">
-          Use username: pavel_kup<br />
-          Password: any text (3+ characters)
+          Use username: admin<br />
+          Password: admin
         </p>
+        <p>If user does not exists, rerun backend with --init-data argument</p>
       </div>
     </div>
   </div>

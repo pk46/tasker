@@ -1,26 +1,27 @@
 import type { User, UserCreate, UserUpdate } from "../models/user";
 import { config } from "../lib/config"
+import { apiRequest } from './apiClient'; 
 
 const API_URL = `${config.apiUrl}/users`;
 
 export async function getAllUsers(): Promise<User[]> {
-    const response = await fetch(API_URL);
+    const response = await apiRequest(API_URL);
     if (!response.ok) {
-        throw new Error("Failed to fetch users;")
+        throw new Error("Failed to apiRequest users;")
     }
     return await response.json();
 }
 
 export async function getUserById(userId: string): Promise<User> {
-    const response = await fetch(`${API_URL}/${userId}`);
+    const response = await apiRequest(`${API_URL}/${userId}`);
     if (!response.ok) {
-        throw new Error(`Failed to fetch user ${userId}`);
+        throw new Error(`Failed to apiRequest user ${userId}`);
     }
     return await response.json();
 }
 
 export async function createUser(user: UserCreate): Promise<User> {
-    const response = await fetch(API_URL, {
+    const response = await apiRequest(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -34,7 +35,7 @@ export async function createUser(user: UserCreate): Promise<User> {
 }
 
 export async function updateUser(id: number, user: UserUpdate): Promise<User> {
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await apiRequest(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -48,7 +49,7 @@ export async function updateUser(id: number, user: UserUpdate): Promise<User> {
 }
 
 export async function deleteUser(id: number): Promise<void> {
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await apiRequest(`${API_URL}/${id}`, {
         method: "DELETE",
     });
     if (!response.ok) {
