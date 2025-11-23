@@ -36,7 +36,8 @@
 
     const data = await response.json();
 
-    localStorage.setItem('jwt_token', data.token);
+    localStorage.setItem('access_token', data.accessToken);
+    localStorage.setItem('refresh_token', data.refreshToken);
 
     authStore.login(data.user);
 

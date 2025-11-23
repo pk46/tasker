@@ -9,7 +9,7 @@ interface AuthState {
 function createAuthStore() {
   const { subscribe, set, update } = writable<AuthState>({
     user: null,
-    isAuthenticated: false
+    isAuthenticated: false,
   });
 
   return {
@@ -20,15 +20,23 @@ function createAuthStore() {
     },
     logout: () => {
       set({ user: null, isAuthenticated: false });
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('currentUser');
     },
-    init: () => {
-      const storedUser = localStorage.getItem('currentUser');
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        set({ user, isAuthenticated: true });
+    checkAuth: () => {
+      const token = localStorage.getItem('access_token');
+      const userJson = localStorage.getItem('currentUser');
+      
+      if (token && userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          set({ user, isAuthenticated: true });
+        } catch (e) {
+          set({ user: null, isAuthenticated: false });
+        }
       }
-    }
+    },
   };
 }
 
