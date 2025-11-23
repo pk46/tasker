@@ -29,7 +29,7 @@ Content-Type:  application/json
 ### Delete user
 DELETE http://localhost:8080/api/users/65
 
-### Login admin
+### Login
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
@@ -37,3 +37,14 @@ Content-Type: application/json
   "username": "admin",
   "password": "admin"
 }
+
+### Refresh token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin",
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInRva2VuVHlwZSI6IlJFRlJFU0giLCJpYXQiOjE3NjM4OTQwMTcsImV4cCI6MTc2NDQ5ODgxN30.Go2Ih9j6tLOWvRotkONFU1BhUWM2avKlMi45q6hFsuw"
+}
+

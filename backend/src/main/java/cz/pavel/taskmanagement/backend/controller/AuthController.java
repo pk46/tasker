@@ -2,6 +2,7 @@ package cz.pavel.taskmanagement.backend.controller;
 
 import cz.pavel.taskmanagement.backend.dto.auth.LoginRequest;
 import cz.pavel.taskmanagement.backend.dto.auth.LoginResponse;
+import cz.pavel.taskmanagement.backend.dto.auth.RefreshTokenRequest;
 import cz.pavel.taskmanagement.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,11 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse loginResponse = authService.login(request);
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        LoginResponse response = authService.refreshToken(request);
+        return ResponseEntity.ok(response);
     }
 }

@@ -10,12 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
 
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private String type = "Bearer";
     private UserResponseDTO user;
 
-    public LoginResponse(String token, UserResponseDTO user) {
-        this.token = token;
+    public LoginResponse(String token, String refreshToken, UserResponseDTO user) {
+        this.accessToken = token;
+        this.refreshToken = refreshToken;
         this.user = user;
     }
 }
