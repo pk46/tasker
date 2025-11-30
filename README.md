@@ -61,7 +61,13 @@ nvm install 24.11.1
 
 # Use it
 nvm use 24.11.1
+````
 
 ## Demo Credentials
 - **Admin:** admin / admin
+- For the first start init admim user:
+```bash
+# Init admin user
+docker compose run backend --init-data
+```
 
