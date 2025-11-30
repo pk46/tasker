@@ -141,6 +141,9 @@
       await deleteTask(id);
       await loadTasks();
     } catch (err) {
+      if (err instanceof Error && err.message.includes("Access denied")) {
+        alert('⛔ ' + err.message)
+      }
       alert('Failed to delete task: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   }

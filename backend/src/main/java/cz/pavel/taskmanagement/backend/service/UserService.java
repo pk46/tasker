@@ -11,6 +11,7 @@ import cz.pavel.taskmanagement.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponseDTO> getAllUsers() {
         log.info("Fetching all users");
@@ -53,7 +55,9 @@ public class UserService {
         User user = new User();
         user.setUsername(createDTO.getUsername());
         user.setEmail(createDTO.getEmail());
-        user.setPassword(createDTO.getPassword());
+
+        String hashedPassword = passwordEncoder.encode(createDTO.getPassword());
+        user.setPassword(hashedPassword);
         user.setFirstName(createDTO.getFirstName());
         user.setLastName(createDTO.getLastName());
         user.setRole(createDTO.getRole());
@@ -80,7 +84,8 @@ public class UserService {
         }
 
         if (updateDTO.getPassword() != null) {
-            user.setPassword(updateDTO.getPassword());
+            String hashedPassword = passwordEncoder.encode(updateDTO.getPassword());
+            user.setPassword(hashedPassword);
         }
 
         if (updateDTO.getFirstName() != null) {

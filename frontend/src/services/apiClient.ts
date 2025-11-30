@@ -61,7 +61,7 @@ export async function apiRequest(
 
   console.log('[apiClient] Response status:', response.status, 'for endpoint:', endpoint);
 
-  if (response.status === 401 || response.status === 403) {
+  if (response.status === 401) {
     console.log(`[apiClient] Got ${response.status}, attempting token refresh`);
     try {
       if (isRefreshing && refreshPromise) {
@@ -87,6 +87,10 @@ export async function apiRequest(
       window.location.href = '/#/login';
       throw error;
     }
+  }
+
+  if (response.status === 403) {
+    console.warn('[apiClient] Access denied (403) - insufficient permissions');
   }
 
   return response;
