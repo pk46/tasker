@@ -31,7 +31,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDateTime.now().toString());
-        errorResponse.put("status", 401);
+        errorResponse.put("status", 403);
         errorResponse.put("error", "Forbidden");
         errorResponse.put("message", "Access denied - insufficient permissions");
 

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +70,8 @@ public class ProjectController {
     }
 
     @DeleteMapping("{id}")
-    @Operation(summary = "Delete user", description = "Remove user from the system")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete project", description = "Remove project from the system")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.info("DELETE /api/project - Deleting project id {}", id);
         projectService.deleteProject(id);
