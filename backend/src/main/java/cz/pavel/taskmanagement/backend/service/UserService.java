@@ -116,4 +116,15 @@ public class UserService {
         userRepository.deleteById(id);
         log.info("User deleted successfully with id: {}", id);
     }
+
+    public void deleteUserByEmail(String email) {
+        log.info("Deleting user with email: {}", email);
+
+        if (!userRepository.existsByEmail(email)) {
+            throw new ResourceNotFoundException("User", email);
+        }
+
+        userRepository.deleteByEmail(email);
+        log.info("User deleted successfully with email: {}", email);
+    }
 }

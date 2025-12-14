@@ -68,4 +68,13 @@ public class UserController {
         userService.deleteUser((id));
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/by-email/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete user by email", description = "Remove a user from the system by email")
+    public ResponseEntity<Void> deleteUserByEmail(@PathVariable String email) {
+        log.info("DELETE /api/users/by-email/{} - Deleting user by email: ", email);
+        userService.deleteUserByEmail(email);
+        return ResponseEntity.noContent().build();
+    }
 }

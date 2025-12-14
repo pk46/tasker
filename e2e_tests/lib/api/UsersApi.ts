@@ -56,8 +56,19 @@ export class UsersApi {
         return this.client.parseResponse<UserResponseDTO>(response);
     }
 
-     async delete(id: number): Promise<void> {
+    async delete(id: number): Promise<void> {
         const response = await this.client.delete(`/api/users/${id}`);
+
+        if (!response.ok()) {
+            const errorText = await response.text();
+            throw new Error(
+                `Failed to delete user: ${response.status()} ${response.statusText()}\n${errorText}`
+            );
+        }
+    }
+
+    async deleteByEmail(email: string): Promise<void> {
+        const response = await this.client.delete(`/api/users/by-email/${email}`);
 
         if (!response.ok()) {
             const errorText = await response.text();

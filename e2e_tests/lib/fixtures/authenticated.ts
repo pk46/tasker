@@ -36,7 +36,6 @@ export const test = base.extend<AuthenticatedFixtures>({
 
         try {
             await authApi.login(username, password);
-            console.info(`Authenticated as ${username}`);
         } catch (error) {
             console.error('Authentication failed:', error);
             throw new Error(
