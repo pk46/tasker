@@ -25,7 +25,7 @@ export class DashboardPage {
         await this.logoutButton.click();
     }
 
-    async goToUser() {
+    async goToUsersPage() {
         await this.usersButton.click();
         await this.page.waitForURL(/.*#\/users/);
     }

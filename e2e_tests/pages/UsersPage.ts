@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { UserRole } from '../lib/api/UsersApi';
-import { CreateUserModal } from './modals/CreateUserModal';
+import { CreateUserModal, CreateUserParams, EditUserParams } from './modals/CreateUserModal';
 
 export enum ColumnNames {
     id = "Id",
@@ -13,39 +13,66 @@ export enum ColumnNames {
 
 export class UsersPage {
     readonly page: Page
-    readonly createUserModal: CreateUserModal;
+    readonly createEditUserModal: CreateUserModal;
     readonly mainTitle: Locator;
     private readonly newUserButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.createUserModal = new CreateUserModal(page);
+        this.createEditUserModal = new CreateUserModal(page);
         this.mainTitle = this.page.getByRole('heading', { name: 'Users' })
         this.newUserButton = this.page.getByRole('button', { name: 'Create User' });
     }
 
-    async createNewUser(username: string, email: string, password: string, role: UserRole, firstName?: string, lastName?: string) {
+    async createNewUser(createuserParams: CreateUserParams) {
         await this.newUserButton.click();
-        await this.createUserModal.waitForModal();
-        await this.createUserModal.createUser(username, email, password, role, firstName, lastName);
+        await this.createEditUserModal.waitForModal();
+        await this.createEditUserModal.createUser(createuserParams);
     }
 
-    async getUserCellValue(userEmail: string, columnName: ColumnNames): Promise<string> {
+    async deleteUser(userEmail: string): Promise<void> {
         const userRow = await this.getUserRow(userEmail);
+        const deleteButton = userRow.getByRole('button', { name: 'Delete' });
+
+        this.page.once('dialog', async dialog => {
+            await dialog.accept();
+        });
+
+        await deleteButton.click();
+        await userRow.waitFor({ state: 'detached' });
+    }
+
+    async editUser(editParams: EditUserParams, userName: string): Promise<void> {
+        const userRow = await this.getUserRow(userName);
+        const editButton = userRow.getByRole('button', { name: 'Edit' });
+        
+        await editButton.click();
+        await this.createEditUserModal.editUser(editParams)
+    }
+
+    async getUserCellValue(userName: string, columnName: ColumnNames): Promise<string> {
+        const userRow = await this.getUserRow(userName);
         const columnIndex = await this.getColumnIndex(columnName);
         const cell = userRow.locator(`td:nth-child(${columnIndex})`);
         const cellValue = await cell.textContent();
 
         if (cellValue === null || cellValue === undefined) {
-            throw new Error(`Cell value not found for user ${userEmail} in column ${columnName}`);
+            throw new Error(`Cell value not found for user ${userName} in column ${columnName}`);
         }
 
         return cellValue;
     }
 
-    private async getUserRow(userEmail: string): Promise<Locator> {
+    async isUserPresent(userName: string): Promise<boolean> {
+        const userRow = this.page.getByRole('row').filter({
+            has: this.page.getByRole('cell', { name: userName, exact: true })
+        });
+        return await userRow.count() > 0;
+    }
+
+    private async getUserRow(userName: string): Promise<Locator> {
         return this.page.getByRole('row').filter({
-            has: this.page.getByRole('cell', { name: userEmail })
+            has: this.page.getByRole('cell', { name: userName })
         });
     }
 
