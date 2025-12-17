@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
-import { UserRole } from '../lib/api/UsersApi';
 import { CreateUserModal, CreateUserParams, EditUserParams } from './modals/CreateUserModal';
+import { BasePage } from './BasePage';
 
 export enum ColumnNames {
     id = "Id",
@@ -11,13 +11,14 @@ export enum ColumnNames {
     actions = "Actions"
 }
 
-export class UsersPage {
+export class UsersPage extends BasePage {
     readonly page: Page
     readonly createEditUserModal: CreateUserModal;
     readonly mainTitle: Locator;
     private readonly newUserButton: Locator;
 
     constructor(page: Page) {
+        super(page);
         this.page = page;
         this.createEditUserModal = new CreateUserModal(page);
         this.mainTitle = this.page.getByRole('heading', { name: 'Users' })

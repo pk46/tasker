@@ -72,10 +72,10 @@
 
             <div class="border-l pl-4 flex items-center gap-3">
               <div class="text-sm">
-                <div class="font-medium text-gray-800">
+                <div class="font-medium text-gray-800" data-testid="username">
                   {currentUser?.firstName} {currentUser?.lastName}
                 </div>
-                <div class="text-gray-500 text-xs">
+                <div class="text-gray-500 text-xs" data-testid="userrole">
                   {currentUser?.role}
                 </div>
               </div>

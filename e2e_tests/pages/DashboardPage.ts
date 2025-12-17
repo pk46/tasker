@@ -1,32 +1,26 @@
 import { Page, Locator } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class DashboardPage {
-    readonly page: Page;
+export class DashboardPage extends BasePage {
     readonly dashboardTitle: Locator;
-    readonly logoutButton: Locator;
-    readonly usersButton: Locator;
+    readonly usersCount: Locator;
 
     constructor(page: Page) {
-        this.page = page;
+        super(page);
         this.dashboardTitle = page.getByRole('heading', { name: 'Dashboard' });
-        this.logoutButton = page.getByRole('button', { name: 'Logout' });
-        this.usersButton = page.locator("//nav//a[text()='Users']")
+        this.usersCount = page.getByTestId("total-users")
     }
 
     async isLoaded() {
-        return await this.dashboardTitle.isVisible();
+        return await this.isPageLoaded(this.dashboardTitle);
     }
 
     async getTitle() {
-        return await this.dashboardTitle.textContent();
+        return await this.getPageTitle(this.dashboardTitle);
     }
 
-    async logout() {
-        await this.logoutButton.click();
-    }
-
-    async goToUsersPage() {
-        await this.usersButton.click();
-        await this.page.waitForURL(/.*#\/users/);
+    async getUsersCount(): Promise<number> {
+        const count = await this.usersCount.textContent();
+        return Number(count)
     }
 }

@@ -12,13 +12,15 @@ test.describe("User tests", () => {
     let dashboardPage: DashboardPage;
     let userPage: UsersPage
 
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }, testInfo) => {
         loginPage = new LoginPage(page);
         dashboardPage = new DashboardPage(page);
         userPage = new UsersPage(page);
 
         await loginPage.goto();
         await loginPage.loginAdmin();
+        const usersCount = await dashboardPage.getUsersCount();
+        testInfo.attach('usersCount', { body: usersCount!.toString() });
         await dashboardPage.goToUsersPage();
     });
 
@@ -33,9 +35,8 @@ test.describe("User tests", () => {
         }
     });
 
-    test("create new user", async ({}, testInfo) => {
+    test("create new user", async ({ page }, testInfo) => {
         const userData = createDefaultUserDto();
-
         testInfo.attach('userEmail', { body: userData.email });
 
         await userPage.createNewUser(userData)
@@ -45,18 +46,30 @@ test.describe("User tests", () => {
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.role)).toBe(UserRole.USER);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit")
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete")
+
+        await page.goto('/#/');
+        const usersCount = await dashboardPage.getUsersCount();
+        const originalUsersCount = testInfo.attachments.find(a => a.name === 'usersCount');
+        const originalCount = parseInt(originalUsersCount?.body?.toString() || '0');
+
+        expect(usersCount).not.toBe(originalCount);
     })
 
-    test("delete user", async ({}) => {
+    test("delete user", async ({ page }) => {
         const userData = createDefaultUserDto();
 
         await userPage.createNewUser(userData);
         await userPage.deleteUser(userData.email);
 
         expect(await userPage.isUserPresent(userData.username)).toBe(false);
+
+        await page.goto('/#/');
+        const usersCount = await dashboardPage.getUsersCount();
+
+        expect(usersCount).toBeGreaterThanOrEqual(1);
     })
 
-    test("edit user", async({}, testInfo) => {
+    test("edit user", async({ page }, testInfo) => {
         const userData = createDefaultUserDto();
 
         await userPage.createNewUser(userData)
@@ -75,7 +88,7 @@ test.describe("User tests", () => {
             }
         )
 
-        await userPage.editUser(editParams, userData.email)
+        await userPage.editUser(editParams, userData.username)
 
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.email)).toBe(editParams.email);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.name)).toBe(`${editParams.firstName} ${editParams.lastName}`);
@@ -84,5 +97,12 @@ test.describe("User tests", () => {
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete")
 
         testInfo.attach('userEmail', { body: editParams.email });
+
+        await page.goto('/#/');
+        const usersCount = await dashboardPage.getUsersCount();
+        const originalUsersCount = testInfo.attachments.find(a => a.name === 'usersCount');
+        const originalCount = parseInt(originalUsersCount?.body?.toString() || '0');
+
+        expect(usersCount).not.toBe(originalCount);
     })
 });

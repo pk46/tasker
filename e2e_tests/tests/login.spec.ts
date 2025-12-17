@@ -1,16 +1,20 @@
 import { LoginPage } from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
-import { UserRole } from '../lib/api/UsersApi';
+import { UserCreateDTO, UserRole } from '../lib/api/UsersApi';
 import { test, expect } from '../lib/fixtures/authenticated';
-import { generateUniqueEmail, generateUniqueUsername } from '../lib/helpers/testDataGenerator';
+import { createDefaultUserDto, createEdituserDto, generateUniqueEmail, generateUniqueUsername } from '../lib/helpers/testDataGenerator';
+import { UsersPage } from '../pages/UsersPage';
+import { EditUserParams } from '../pages/modals/CreateUserModal';
 
 test.describe("login actions", () => {
     let loginPage: LoginPage;
     let dashboardPage: DashboardPage;
+    let userPage: UsersPage;
 
     test.beforeEach(async ({ page }) => {
         loginPage = new LoginPage(page);
         dashboardPage = new DashboardPage(page);
+        userPage = new UsersPage(page);
         await loginPage.goto();
     });
 
@@ -57,6 +61,68 @@ test.describe("login actions", () => {
         } finally {
             await usersApi.delete(user.id);
         }
+    })
+
+    test("non existent user can't login", async ({ page }) => {
+        const username = "nonexistentuser";
+        const password = "autotestPass!@#"
+
+        await loginPage.login(username, password);
+
+        await expect(page).toHaveURL(/.*#\/login/);
+        await expect(loginPage.mainTitle).toHaveText("Task Management")
+
+    })
+
+    test("user with wrong password can't login", async ({ page, usersApi }) => {
+        const username = generateUniqueUsername("login");
+        const email = generateUniqueEmail();
+        
+        const userCreatDto: UserCreateDTO = {
+            username: username,
+            email: email,
+            role: UserRole.ADMIN,
+            password: "Test123/"
+        }
+
+        try {
+            await usersApi.create(userCreatDto);
+            await loginPage.login(username, "abc987/");
+
+            await expect(page).toHaveURL(/.*#\/login/);
+            await expect(loginPage.mainTitle).toHaveText("Task Management")
+        
+        } finally {
+            await usersApi.deleteByEmail(email);
+        }
+    })
+
+    test("user with changed password can login", async ({ page, usersApi }) => {
+        const userData = createDefaultUserDto();
+        const editParams: EditUserParams = createEdituserDto(
+            {
+                password: "NewPassword123"
+            }        
+        );
+
+        await loginPage.loginAdmin();
+        await dashboardPage.goToUsersPage();
+
+        try {
+            await userPage.createNewUser(userData);
+            await userPage.editUser(editParams, userData.email)
+            
+            await dashboardPage.logout();
+
+            await loginPage.login(userData.username, editParams.password!);
+
+            await expect(page).toHaveURL(/.*#\/$/);
+            await expect(dashboardPage.dashboardTitle).toHaveText("Dashboard");
+        
+        } finally {
+            await usersApi.deleteByEmail(userData.email);
+        }
+        
     })
 });
 

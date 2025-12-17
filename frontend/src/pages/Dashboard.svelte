@@ -65,7 +65,12 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-500 mb-1">{stat.label}</p>
-              <p class="text-3xl font-bold text-gray-800">{stat.value}</p>
+              <p class="text-3xl font-bold text-gray-800" data-testid={
+                stat.label === "Total Users" ? "total-users" :
+                stat.label === "Total Projects" ? "total-projects" :
+                stat.label === "Total Tasks" ? "total-tasks" :
+                stat.label === "Completed Tasks" ? "completed-tasks" : ""
+              }>{stat.value}</p>
             </div>
             <div class="w-12 h-12 rounded-lg {stat.color} flex items-center justify-center text-2xl">
               {stat.icon}
