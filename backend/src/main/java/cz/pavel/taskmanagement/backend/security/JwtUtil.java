@@ -5,17 +5,32 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
 
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key secretKey;
     private static final long ACCESS_TOKEN_EXPIRATION = 900000; // 15 * 60 * 1000 ms
     private static final long REFRESH_TOKEN_EXPIRATION = 604800000; // 7 * 24 * 60 * 60 * 1000 ms
+
+    public JwtUtil(@Value("${jwt.secret:}") String jwtSecret) {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            log.warn("No jwt.secret configured! Generating random key - tokens will be invalidated on restart.");
+            this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        } else {
+            byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+            this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+            log.info("JWT secret loaded from configuration");
+        }
+    }
 
     public String generateAccessToken(String username, Long userId, String role) {
         Date now = new Date();
@@ -28,7 +43,7 @@ public class JwtUtil {
                 .claim("tokenType", "ACCESS")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SECRET_KEY)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -41,7 +56,7 @@ public class JwtUtil {
                 .claim("tokenType", "REFRESH")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SECRET_KEY)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -52,7 +67,7 @@ public class JwtUtil {
 
     private Claims parseToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

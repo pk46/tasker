@@ -107,12 +107,7 @@
       </form>
 
       <div class="mt-6 text-center text-sm text-gray-600">
-        <p class="mb-2">Demo account:</p>
-        <p class="text-xs">
-          Use username: admin<br />
-          Password: admin
-        </p>
-        <p>If user does not exists, rerun backend with --init-data argument</p>
+        <p>Contact your administrator if you need an account.</p>
       </div>
     </div>
   </div>

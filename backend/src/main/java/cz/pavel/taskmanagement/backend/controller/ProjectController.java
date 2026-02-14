@@ -3,6 +3,7 @@ package cz.pavel.taskmanagement.backend.controller;
 import cz.pavel.taskmanagement.backend.dto.project.ProjectCreateDTO;
 import cz.pavel.taskmanagement.backend.dto.project.ProjectResponseDTO;
 import cz.pavel.taskmanagement.backend.dto.project.ProjectUpdateDTO;
+import cz.pavel.taskmanagement.backend.security.SecurityUtils;
 import cz.pavel.taskmanagement.backend.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,25 +55,36 @@ public class ProjectController {
     public ResponseEntity<ProjectResponseDTO> createProject(
             @Valid @RequestBody ProjectCreateDTO projectCreateDTO,
             @RequestParam Long ownerId) {
+        // Users can only create projects for themselves, admins can create for anyone
+        if (!SecurityUtils.isAdminOrCurrentUser(ownerId)) {
+            throw new AccessDeniedException("You can only create projects for yourself");
+        }
         log.info("POST /api/projects - Creating new project for owner {}", ownerId);
         ProjectResponseDTO project = projectService.createProject(projectCreateDTO, ownerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(project);
     }
 
     @PutMapping("{id}")
-    @Operation(summary = "Update project", description = "Update an existing project's information")
+    @Operation(summary = "Update project", description = "Update an existing project's information (owner or admin)")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
             @Valid @RequestBody ProjectUpdateDTO projectUpdateDTO) {
+        ProjectResponseDTO existing = projectService.getProjectById(id);
+        if (!SecurityUtils.isAdminOrCurrentUser(existing.getOwner().getId())) {
+            throw new AccessDeniedException("You can only update your own projects");
+        }
         log.info("PUT /api/projects - Updating project id {}", id);
         ProjectResponseDTO project = projectService.updateProject(id, projectUpdateDTO);
         return ResponseEntity.ok(project);
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete project", description = "Remove project from the system")
+    @Operation(summary = "Delete project", description = "Remove project from the system (owner or admin)")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        ProjectResponseDTO existing = projectService.getProjectById(id);
+        if (!SecurityUtils.isAdminOrCurrentUser(existing.getOwner().getId())) {
+            throw new AccessDeniedException("You can only delete your own projects");
+        }
         log.info("DELETE /api/project - Deleting project id {}", id);
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();

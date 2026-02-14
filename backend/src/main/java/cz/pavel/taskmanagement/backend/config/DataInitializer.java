@@ -13,12 +13,19 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${admin.default-password:#{null}}")
+    private String adminDefaultPassword;
+
+    public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void run(String... args) {
@@ -30,18 +37,30 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createUser() {
+        if (userRepository.existsByUsername("admin")) {
+            log.info("Admin user already exists, skipping creation");
+            return;
+        }
+
+        String password = adminDefaultPassword;
+        if (password == null || password.isBlank()) {
+            password = java.util.UUID.randomUUID().toString();
+            log.warn("No admin.default-password configured. Generated random password - check application startup logs.");
+            log.info("Generated admin password: {}", password);
+        }
+
         User user = new User();
         user.setUsername("admin");
         user.setFirstName("Admin");
         user.setLastName("Admin");
-        user.setEmail("");
+        user.setEmail("admin@localhost");
         user.setRole(Role.ADMIN);
 
-        String hashedPassword = passwordEncoder.encode("admin");
+        String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);
 
         userRepository.save(user);
 
-        log.info("Created admin with username: admin and password: admin");
+        log.info("Created admin user with username: admin");
     }
 }

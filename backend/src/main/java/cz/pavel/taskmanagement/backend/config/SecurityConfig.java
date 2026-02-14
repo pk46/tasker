@@ -30,10 +30,8 @@ public class SecurityConfig {
     public static final List<String> PUBLIC_PATHS = List.of(
             "/api/auth/",
             "/api/health/",
-            "/h2-console/",
             "/swagger-ui/",
-            "/api-docs/",
-            "/rehash-passwords/"
+            "/api-docs/"
     );
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -68,7 +66,14 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class
                 )
 
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                        .contentTypeOptions(contentType -> {})
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                        )
+                );
 
         return http.build();
     }
