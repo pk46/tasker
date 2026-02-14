@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class TaskService {
 
     private final TaskRepository taskRepository;
@@ -70,6 +70,7 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public TaskResponseDTO createTask(TaskCreateDTO createDTO) {
         log.info("Creating new task: {}", createDTO.getTitle());
 
@@ -96,6 +97,7 @@ public class TaskService {
         return new TaskResponseDTO(savedTask);
     }
 
+    @Transactional
     public TaskResponseDTO updateTask(Long id, TaskUpdateDTO updateDTO) {
         log.info("Updating task with id: {}", id);
 
@@ -136,6 +138,7 @@ public class TaskService {
         return new TaskResponseDTO(updatedTask);
     }
 
+    @Transactional
     public void deleteTask(Long id) {
         log.info("Deleting task with id: {}", id);
 

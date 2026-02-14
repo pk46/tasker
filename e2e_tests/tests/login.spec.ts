@@ -29,6 +29,7 @@ test.describe("login actions", () => {
 
         await expect(page).toHaveURL(/.*#\/$/);
         await expect(dashboardPage.dashboardTitle).toHaveText("Dashboard");
+        expect(await dashboardPage.getUserRole()).toBe("ADMIN");
 
         await dashboardPage.logout();
 
@@ -46,6 +47,8 @@ test.describe("login actions", () => {
             email,
             password,
             role: UserRole.USER,
+            firstName: "Toprak",
+            lastName: "Razgatlioglu"
         });
 
         try {
@@ -53,6 +56,8 @@ test.describe("login actions", () => {
 
             await expect(page).toHaveURL(/.*#\/$/);
             await expect(dashboardPage.dashboardTitle).toHaveText("Dashboard");
+            expect(await dashboardPage.getUserRole()).toBe("USER");
+            expect (await dashboardPage.getUserName()).toBe(`${user.firstName} ${user.lastName}`);
 
             await dashboardPage.logout();
 
@@ -101,16 +106,17 @@ test.describe("login actions", () => {
         const userData = createDefaultUserDto();
         const editParams: EditUserParams = createEdituserDto(
             {
-                password: "NewPassword123"
+                password: "NewPassword123",
+                userRole: UserRole.ADMIN
             }        
         );
 
         await loginPage.loginAdmin();
-        await dashboardPage.goToUsersPage();
+        await dashboardPage.goToPage("Users");
 
         try {
             await userPage.createNewUser(userData);
-            await userPage.editUser(editParams, userData.email)
+            await userPage.editUser(editParams, userData.username)
             
             await dashboardPage.logout();
 
@@ -118,6 +124,35 @@ test.describe("login actions", () => {
 
             await expect(page).toHaveURL(/.*#\/$/);
             await expect(dashboardPage.dashboardTitle).toHaveText("Dashboard");
+        
+        } finally {
+            await usersApi.deleteByEmail(userData.email);
+        }
+        
+    })
+
+    test("user with changed password can't login with an old password", async ({ page, usersApi }) => {
+        const userData = createDefaultUserDto();
+        const editParams: EditUserParams = createEdituserDto(
+            {
+                password: "NewPassword123",
+                userRole: UserRole.ADMIN
+            }        
+        );
+
+        await loginPage.loginAdmin();
+        await dashboardPage.goToPage("Users");
+
+        try {
+            await userPage.createNewUser(userData);
+            await userPage.editUser(editParams, userData.username)
+            
+            await dashboardPage.logout();
+
+            await loginPage.login(userData.username, userData.password!);
+           
+            await expect(page).toHaveURL(/.*#\/login/);
+            await expect(loginPage.mainTitle).toHaveText("Task Management")
         
         } finally {
             await usersApi.deleteByEmail(userData.email);

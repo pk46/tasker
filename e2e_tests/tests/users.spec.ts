@@ -21,7 +21,7 @@ test.describe("User tests", () => {
         await loginPage.loginAdmin();
         const usersCount = await dashboardPage.getUsersCount();
         testInfo.attach('usersCount', { body: usersCount!.toString() });
-        await dashboardPage.goToUsersPage();
+        await dashboardPage.goToPage("Users");
     });
 
     test.afterEach(async ({ usersApi }, testInfo) => {
@@ -44,8 +44,8 @@ test.describe("User tests", () => {
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.email)).toBe(userData.email);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.username)).toBe(userData.username);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.role)).toBe(UserRole.USER);
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit")
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete")
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit");
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete");
 
         await page.goto('/#/');
         const usersCount = await dashboardPage.getUsersCount();
@@ -77,14 +77,14 @@ test.describe("User tests", () => {
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.email)).toBe(userData.email);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.username)).toBe(userData.username);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.role)).toBe(UserRole.USER);
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit")
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete")
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit");
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete");
 
         const editParams: EditUserParams = createEdituserDto(
             {
             firstName: "John",
             lastName: "Edited",
-            userRole: UserRole.ADMIN
+            userRole: UserRole.ADMIN,
             }
         )
 
@@ -93,8 +93,8 @@ test.describe("User tests", () => {
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.email)).toBe(editParams.email);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.name)).toBe(`${editParams.firstName} ${editParams.lastName}`);
         expect(await userPage.getUserCellValue(userData.username, ColumnNames.role)).toBe(UserRole.ADMIN);
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit")
-        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete")
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Edit");
+        expect(await userPage.getUserCellValue(userData.username, ColumnNames.actions)).toContain("Delete");
 
         testInfo.attach('userEmail', { body: editParams.email });
 

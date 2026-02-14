@@ -4,11 +4,13 @@ import { BasePage } from './BasePage';
 export class DashboardPage extends BasePage {
     readonly dashboardTitle: Locator;
     readonly usersCount: Locator;
+    readonly projectsCount: Locator;
 
     constructor(page: Page) {
         super(page);
         this.dashboardTitle = page.getByRole('heading', { name: 'Dashboard' });
-        this.usersCount = page.getByTestId("total-users")
+        this.usersCount = page.getByTestId("total-users");
+        this.projectsCount = page.getByTestId("total-projects");
     }
 
     async isLoaded() {
@@ -22,5 +24,10 @@ export class DashboardPage extends BasePage {
     async getUsersCount(): Promise<number> {
         const count = await this.usersCount.textContent();
         return Number(count)
+    }
+
+    async getProjectsCount(): Promise<number> {
+        const count = await this.projectsCount.textContent();
+        return Number(count);
     }
 }

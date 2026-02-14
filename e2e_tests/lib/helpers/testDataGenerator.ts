@@ -1,4 +1,5 @@
 
+import { CreateProjectParams } from "../../pages/modals/CreateProjectModal";
 import { CreateUserParams, EditUserParams } from "../../pages/modals/CreateUserModal";
 import { UserRole } from "../api/UsersApi";
 
@@ -35,4 +36,15 @@ export function createEdituserDto(
         email: generateUniqueEmail(),
         ...overrides
     };
+}
+
+export function creatDefaultProjectDto(
+    overrides: Partial<CreateProjectParams> = {}
+): CreateProjectParams {
+    return {
+        name: `TestProject_${generateUniqueId()}`,
+        description: "Test description of the testing project",
+        owner: "Admin Admin (admin)",
+        ...overrides
+    }
 }

@@ -8,7 +8,7 @@ import cz.pavel.taskmanagement.backend.entity.User;
 import cz.pavel.taskmanagement.backend.exception.DuplicateResourceException;
 import cz.pavel.taskmanagement.backend.exception.ResourceNotFoundException;
 import cz.pavel.taskmanagement.backend.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -41,6 +41,7 @@ public class UserService {
         return new UserResponseDTO(user);
     }
 
+    @Transactional
     public UserResponseDTO createUser(UserCreateDTO createDTO) {
         log.info("Creating new user with username: {}", createDTO.getUsername());
 
@@ -68,6 +69,7 @@ public class UserService {
         return new UserResponseDTO(savedUser);
     }
 
+    @Transactional
     public UserResponseDTO updateUser(Long id, UserUpdateDTO updateDTO) {
         log.info("Updating user with id: {}", id);
 
@@ -106,6 +108,7 @@ public class UserService {
         return new UserResponseDTO(updatedUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         log.info("Deleting user with id: {}", id);
 
@@ -117,6 +120,7 @@ public class UserService {
         log.info("User deleted successfully with id: {}", id);
     }
 
+    @Transactional
     public void deleteUserByEmail(String email) {
         log.info("Deleting user with email: {}", email);
 

@@ -12,14 +12,12 @@ export enum ColumnNames {
 }
 
 export class UsersPage extends BasePage {
-    readonly page: Page
     readonly createEditUserModal: CreateUserModal;
     readonly mainTitle: Locator;
     private readonly newUserButton: Locator;
 
     constructor(page: Page) {
         super(page);
-        this.page = page;
         this.createEditUserModal = new CreateUserModal(page);
         this.mainTitle = this.page.getByRole('heading', { name: 'Users' })
         this.newUserButton = this.page.getByRole('button', { name: 'Create User' });

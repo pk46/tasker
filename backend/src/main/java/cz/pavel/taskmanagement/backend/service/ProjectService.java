@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -51,6 +51,7 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ProjectResponseDTO createProject(ProjectCreateDTO createDTO, Long ownerId) {
         log.info("Creating new project: {} for owner id: {}", createDTO.getName(), ownerId);
 
@@ -68,6 +69,7 @@ public class ProjectService {
         return toResponseDTO(savedProject);
     }
 
+    @Transactional
     public ProjectResponseDTO updateProject(Long id, ProjectUpdateDTO updateDTO) {
         log.info("Updating project with id: {}", id);
 
@@ -88,6 +90,7 @@ public class ProjectService {
         return toResponseDTO(updatedProject);
     }
 
+    @Transactional
     public void deleteProject(Long id) {
         log.info("Deleting project with id: {}", id);
 
